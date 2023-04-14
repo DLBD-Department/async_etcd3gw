@@ -1,10 +1,16 @@
-# async_etcd3gw
+# async-etcd3gw
 An async etcd3 grpc-gateway v3 API Python client, derived from [etcd3gw](https://opendev.org/openstack/etcd3gw).
+
+[![Build Status](https://github.com//DLBD-Department/async_etcd3gw/workflows/Tests/badge.svg)](https://github.com//DLBD-Department/async_etcd3gw/actions)
+[![PyPI version](https://badge.fury.io/py/async-etcd3gw.svg)](https://badge.fury.io/py/async-etcd3gw)
+[![PyPI](https://img.shields.io/pypi/pyversions/async-etcd3gw.svg)](https://pypi.org/project/async-etcd3gw)
+[![License: Apache 2](https://img.shields.io/pypi/l/async-etcd3gw)](https://www.apache.org/licenses/LICENSE-2.0.html)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 ### Library Installation
 
 ```
-$ pip install async_etcd3gw
+$ pip install async-etcd3gw
 ```
 
 ### Usage
@@ -15,7 +21,7 @@ Basic usage example:
 
 ```python
 import asyncio
-from async_etcd3gw.async_client import AsyncEtcd3Client
+from async_etcd3gw import AsyncEtcd3Client
 
 async def main():
     client = AsyncEtcd3Client(host='etcd', port=2379)
