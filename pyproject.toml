@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.black]
+line-length = 132
+
+[tool.coverage.run]
+source = ["async_etcd3gw"]
+
+[tool.coverage.report]
+exclude_lines = [ "# pragma: no cover", "if TYPE_CHECKING:" ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "etcd: marks tests requiring etcd (deselect with '-m \"not etcd\"')",
+]

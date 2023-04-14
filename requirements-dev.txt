@@ -1,0 +1,11 @@
+black
+build
+coverage[toml]
+flake8
+mypy
+pytest
+pytest-cov
+pytest_asyncio
+setuptools>=65.5.1
+tox
+twine<3.4
