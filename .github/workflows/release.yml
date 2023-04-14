@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: fountainhead/action-wait-for-check@v1.0.0
+      - uses: fountainhead/action-wait-for-check@v1.1.0
         id: wait-for-tests
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -35,15 +35,15 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
 
       - name: Cache pip
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-python-${{ matrix.python }}-pip-${{ hashFiles('**/requirements*.txt') }}-git-${{ github.sha }}
