@@ -32,14 +32,14 @@ async def main():
     print(">>>> Lease")
     lease = await async_client.lease()
     print("Lease id : %r" % lease.id)
-    print("Lease ttl : %r" % lease.ttl())
-    print("Lease refresh : %r" % lease.refresh())
+    print("Lease ttl : %r" % await lease.ttl())
+    print("Lease refresh : %r" % await lease.refresh())
 
     result = await async_client.put("foo2", "bar2", lease)
     print("Key put foo2 : %r" % result)
     result = await async_client.put("foo3", "bar3", lease)
     print("Key put foo3 : %r" % result)
-    print("Lease Keys : %r" % lease.keys())
+    print("Lease Keys : %r" % await lease.keys())
 
     result = await lease.revoke()
     print("Lease Revoke : %r" % result)
