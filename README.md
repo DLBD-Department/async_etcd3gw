@@ -51,6 +51,8 @@ if __name__ == "__main__":
 
 ### Links
 
+* [etcd](https://etcd.io)
+* [etcd gRPC API](https://etcd.io/docs/v3.5/learning/api/)
 * [etcd3gw, An etcd3 grpc-gateway v3 API Python client](https://opendev.org/openstack/etcd3gw)
 * [etcd gRPC gateway](https://etcd.io/docs/v3.5/dev-guide/api_grpc_gateway/)
 * [AIOHTTP, Asynchronous HTTP Client/Server for asyncio and Python.](https://docs.aiohttp.org/en/stable/)
