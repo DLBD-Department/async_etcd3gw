@@ -29,10 +29,21 @@ bytes_types = (bytes, bytearray)
 
 
 def _encode(data):
-    """Encode the given data using base-64
+    """Encode the given data using base-64.
 
-    :param data:
-    :return: base-64 encoded string
+    This function takes a data as an argument and encodes it using base-64.
+    It returns a base-64 encoded string. If the data is not a bytes object,
+    it converts it to a bytes object using latin-1 encoding.
+
+    Example:
+        >>> _encode("hello")
+        'aGVsbG8='
+
+    Args:
+        data (bytes or str): The data to encode.
+
+    Returns:
+        str: The base-64 encoded string.
     """
     if not isinstance(data, bytes_types):
         data = str(data).encode("latin-1")
@@ -40,10 +51,21 @@ def _encode(data):
 
 
 def _decode(data):
-    """Decode the base-64 encoded string
+    """Decode the base-64 encoded string.
 
-    :param data:
-    :return: decoded data
+    This function takes a data as an argument and decodes it using base-64.
+    It returns the decoded data. If the data is not a bytes object,
+    it converts it to a bytes object using latin-1 encoding.
+
+    Example:
+        >>> _decode('aGVsbG8=')
+        b'hello'
+
+    Args:
+        data (bytes or str): The base-64 encoded string.
+
+    Returns:
+        bytes: The decoded data.
     """
     if not isinstance(data, bytes_types):
         data = str(data).encode("latin-1")
@@ -51,10 +73,21 @@ def _decode(data):
 
 
 def _increment_last_byte(data):
-    """Get the last byte in the array and increment it
+    """Get the last byte in the array and increment it.
 
-    :param bytes_string:
-    :return:
+    This function takes a data as an argument and increments the last byte in the
+    array by one. It returns the modified data. If the data is not a bytes object,
+    it converts it to a bytes object using utf-8 or latin-1 encoding.
+
+    Example:
+        >>> _increment_last_byte(b'foo')
+        b'fop'
+
+    Args:
+        data (bytes or str): The data to increment.
+
+    Returns:
+        bytes: The modified data.
     """
     if not isinstance(data, bytes_types):
         if isinstance(data, str):

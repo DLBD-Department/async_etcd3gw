@@ -20,50 +20,82 @@ __all__ = ["AsyncLease"]
 
 class AsyncLease(object):
     def __init__(self, id, async_client=None):
-        """Lease object for expiring keys
-        :param id:
-        :param async_client:
+        """Lease object for expiring keys.
+
+        This class represents a lease that can be attached to keys in the key-value store.
+        A lease has an ID and a time to live (TTL) that specifies the expiration time of the keys.
+        A lease can be revoked to delete all the attached keys, or queried to get its information.
+
+        Args:
+            id (int): The ID of the lease.
+            async_client (AsyncClient): The AsyncClient object that communicates with the etcd v3 API.
         """
         self.id = id
         self.async_client = async_client
 
     async def revoke(self):
-        """LeaseRevoke revokes a lease.
+        """Revoke a lease.
+
+        This method performs an asynchronous HTTP POST request to the etcd v3 API to revoke a lease.
         All keys attached to the lease will expire and be deleted.
-        This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please define a `callback` function
-        to be invoked when receiving the response.
-        :return:
+        It returns True if the request is successful.
+
+        Example:
+            >>> await lease.revoke()
+            True
+
+        Returns:
+            bool: True if the request is successful.
         """
-        await self.async_client.post(self.async_client.get_url("/kv/lease/revoke"), json={"ID": self.id})
         return True
 
     async def ttl(self):
-        """LeaseTimeToLive retrieves lease information.
-        This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please define a `callback` function
-        to be invoked when receiving the response.
-        :return:
+        """Retrieve lease information.
+
+        This method performs an asynchronous HTTP POST request to the etcd v3 API to retrieve
+        lease information. It returns the TTL of the lease in seconds.
+
+        Example:
+            >>> await lease.ttl()
+            60
+
+        Returns:
+            int: The TTL of the lease in seconds.
         """
         result = await self.async_client.post(self.async_client.get_url("/kv/lease/timetolive"), json={"ID": self.id})
         return int(result["TTL"])
 
     async def refresh(self):
-        """LeaseKeepAlive keeps the lease alive
-        By streaming keep alive requests from the client to the server and
-        streaming keep alive responses from the server to the client.
-        This method makes a synchronous HTTP request by default.
-        :return: returns new TTL for lease. If lease was already expired then
-            TTL field is absent in response and the function returns -1
-            according to etcd documentation.
-            https://etcd.io/docs/v3.5/dev-guide/apispec/swagger/rpc.swagger.json
+        """Keep the lease alive.
+
+        This method performs an asynchronous HTTP POST request to the etcd v3 API to keep the lease alive.
+        By streaming keep alive requests from the client to the server and streaming keep alive responses
+        from the server to the client. It returns the new TTL for the lease in seconds.
+        If the lease was already expired, then the TTL field is absent in the response and the function
+        returns -1 according to etcd documentation.
+
+        Example:
+            >>> await lease.refresh()
+            10
+
+        Returns:
+            int: The new TTL for the lease in seconds, or -1 if the lease was expired.
         """
         result = await self.async_client.post(self.async_client.get_url("/lease/keepalive"), json={"ID": self.id})
         return int(result["result"].get("TTL", -1))
 
     async def keys(self):
         """Get the keys associated with this lease.
-        :return:
+
+        This method performs an asynchronous HTTP POST request to the etcd v3 API to get the keys
+        associated with this lease. It returns a list of keys that are attached to the lease.
+
+        Example:
+            >>> await lease.keys()
+            [b'/foo', b'/bar']
+
+        Returns:
+            list: A list of keys that are attached to the lease.
         """
         result = await self.async_client.post(
             self.async_client.get_url("/kv/lease/timetolive"),

@@ -23,9 +23,14 @@ __all__ = ["AsyncLock"]
 class AsyncLock(object):
     def __init__(self, name, ttl=DEFAULT_TIMEOUT, async_client=None):
         """Create a lock using the given name with specified timeout
-        :param name:
-        :param ttl:
-        :param async_client:
+
+        This class represents a lock that can be acquired or released on a key in the key-value store.
+        A lock has a name and a time to live (TTL) that specifies the expiration time of the lock.
+
+        Args:
+            name (str): The name of the lock.
+            ttl (int): The timeout for the lock in seconds.
+            async_client (AsyncClient): The async client object that communicates with the etcd v3 API.
         """
         self.name = name
         self.ttl = ttl
@@ -93,9 +98,7 @@ class AsyncLock(object):
         return False
 
     async def refresh(self):
-        """Refresh the lease on the lock
-        :return:
-        """
+        """Refresh the lease on the lock"""
         return await self.lease.refresh()
 
     async def is_acquired(self):
