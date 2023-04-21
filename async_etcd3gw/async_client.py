@@ -37,7 +37,7 @@ __all__ = [
 
 _SORT_ORDER = ["none", "ascend", "descend"]
 _SORT_TARGET = ["key", "version", "create", "mod", "value"]
-DEFAULT_API_PATH = "/v3alpha/"
+DEFAULT_API_PATH = "/v3/"
 DEFAULT_PORT = 2379
 DEFAULT_PROTOCOL = "http"
 
@@ -70,6 +70,7 @@ class AsyncEtcd3Client(object):
             port (int): The etcd port.
             protocol (str): The etcd protocol (http/https).
             timeout (int): The default timeout.
+            api_path (str): The api path.
         """
         self.host = host
         self.port = port
