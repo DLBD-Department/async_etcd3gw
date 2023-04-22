@@ -18,14 +18,16 @@ from time import perf_counter
 import pytest
 
 from async_etcd3gw import exceptions, utils, AsyncEtcd3Client
+from async_etcd3gw.async_client import DEFAULT_API_PATH
 
 ETCD_HOST = os.environ.get("ETCD_HOST", "localhost")
+API_PATH = os.environ.get("API_PATH", DEFAULT_API_PATH)
 
 
 @pytest.mark.etcd
 @pytest.mark.asyncio
 async def test_client_status():
-    client = AsyncEtcd3Client(host=ETCD_HOST)
+    client = AsyncEtcd3Client(host=ETCD_HOST, api_path=API_PATH)
     response = await client.status()
     assert response is not None
     assert "version" in response
@@ -36,7 +38,7 @@ async def test_client_status():
 @pytest.mark.etcd
 @pytest.mark.asyncio
 async def test_client_members():
-    client = AsyncEtcd3Client(host=ETCD_HOST)
+    client = AsyncEtcd3Client(host=ETCD_HOST, api_path=API_PATH)
     response = await client.members()
     assert len(response) > 0
     assert "clientURLs" in response[0]
@@ -46,7 +48,7 @@ async def test_client_members():
 @pytest.mark.etcd
 @pytest.mark.asyncio
 async def test_client_with_keys_and_values():
-    client = AsyncEtcd3Client(host=ETCD_HOST)
+    client = AsyncEtcd3Client(host=ETCD_HOST, api_path=API_PATH)
     assert await client.put("foo0", "bar0")
     assert await client.put("foo1", 2001)
     assert await client.put("foo2", b"bar2")
@@ -65,7 +67,7 @@ async def test_client_with_keys_and_values():
 @pytest.mark.etcd
 @pytest.mark.asyncio
 async def test_get_and_delete_prefix():
-    client = AsyncEtcd3Client(host=ETCD_HOST)
+    client = AsyncEtcd3Client(host=ETCD_HOST, api_path=API_PATH)
     for i in range(20):
         await client.put(f"/doot1/range{i}", "i am a range")
 
@@ -83,7 +85,7 @@ async def test_get_and_delete_prefix():
 @pytest.mark.etcd
 @pytest.mark.asyncio
 async def test_get_prefix_sort_order():
-    client = AsyncEtcd3Client(host=ETCD_HOST)
+    client = AsyncEtcd3Client(host=ETCD_HOST, api_path=API_PATH)
 
     def remove_prefix(string, prefix):
         return string[len(prefix) :]
@@ -110,7 +112,7 @@ async def test_get_prefix_sort_order():
 @pytest.mark.etcd
 @pytest.mark.asyncio
 async def test_get_prefix_sort_order_explicit_sort_target_key():
-    client = AsyncEtcd3Client(host=ETCD_HOST)
+    client = AsyncEtcd3Client(host=ETCD_HOST, api_path=API_PATH)
 
     def remove_prefix(string, prefix):
         return string[len(prefix) :]
@@ -138,7 +140,7 @@ async def test_get_prefix_sort_order_explicit_sort_target_key():
 @pytest.mark.etcd
 @pytest.mark.asyncio
 async def test_get_prefix_sort_order_explicit_sort_target_rev():
-    client = AsyncEtcd3Client(host=ETCD_HOST)
+    client = AsyncEtcd3Client(host=ETCD_HOST, api_path=API_PATH)
 
     def remove_prefix(string, prefix):
         return string[len(prefix) :]
@@ -165,7 +167,7 @@ async def test_get_prefix_sort_order_explicit_sort_target_rev():
 @pytest.mark.etcd
 @pytest.mark.asyncio
 async def test_replace_success():
-    client = AsyncEtcd3Client(host=ETCD_HOST)
+    client = AsyncEtcd3Client(host=ETCD_HOST, api_path=API_PATH)
     key = "/doot/thing" + str(uuid.uuid4())
     await client.put(key, "toot")
     status = await client.replace(key, "toot", "doot")
@@ -177,7 +179,7 @@ async def test_replace_success():
 @pytest.mark.etcd
 @pytest.mark.asyncio
 async def test_replace_fail():
-    client = AsyncEtcd3Client(host=ETCD_HOST)
+    client = AsyncEtcd3Client(host=ETCD_HOST, api_path=API_PATH)
     key = "/doot/thing" + str(uuid.uuid4())
     await client.put(key, "boot")
     status = await client.replace(key, "toot", "doot")
@@ -189,7 +191,7 @@ async def test_replace_fail():
 @pytest.mark.etcd
 @pytest.mark.asyncio
 async def test_client_lease():
-    client = AsyncEtcd3Client(host=ETCD_HOST)
+    client = AsyncEtcd3Client(host=ETCD_HOST, api_path=API_PATH)
     lease = await client.lease(ttl=60)
     assert lease is not None
 
@@ -208,7 +210,7 @@ async def test_client_lease():
 @pytest.mark.etcd
 @pytest.mark.asyncio
 async def test_client_lease_with_keys():
-    client = AsyncEtcd3Client(host=ETCD_HOST)
+    client = AsyncEtcd3Client(host=ETCD_HOST, api_path=API_PATH)
     lease = await client.lease(ttl=60)
     assert lease is not None
 
@@ -229,7 +231,7 @@ async def test_client_lease_with_keys():
 @pytest.mark.etcd
 @pytest.mark.asyncio
 async def test_watch_key():
-    client = AsyncEtcd3Client(host=ETCD_HOST)
+    client = AsyncEtcd3Client(host=ETCD_HOST, api_path=API_PATH)
     key = "/%s-watch_key/watch" % str(uuid.uuid4())
 
     async def update_etcd(v):
@@ -271,7 +273,7 @@ async def test_watch_key():
 @pytest.mark.etcd
 @pytest.mark.asyncio
 async def test_watch_prefix():
-    client = AsyncEtcd3Client(host=ETCD_HOST)
+    client = AsyncEtcd3Client(host=ETCD_HOST, api_path=API_PATH)
     key = "/%s-watch_prefix/watch/prefix/" % str(uuid.uuid4())
 
     async def update_etcd(v):
@@ -315,7 +317,7 @@ async def test_watch_prefix():
 @pytest.mark.etcd
 @pytest.mark.asyncio
 async def test_sequential_watch_prefix_once():
-    client = AsyncEtcd3Client(host=ETCD_HOST)
+    client = AsyncEtcd3Client(host=ETCD_HOST, api_path=API_PATH)
     try:
         await client.watch_prefix_once("/doot/", 1)
     except exceptions.WatchTimedOut:
@@ -333,7 +335,7 @@ async def test_sequential_watch_prefix_once():
 @pytest.mark.etcd
 @pytest.mark.asyncio
 async def test_client_lock_acquire_release():
-    client = AsyncEtcd3Client(host=ETCD_HOST)
+    client = AsyncEtcd3Client(host=ETCD_HOST, api_path=API_PATH)
     async with await client.lock(ttl=60) as lock:
         ttl = await lock.refresh()
         assert 0 <= ttl <= 60
@@ -346,7 +348,7 @@ async def test_client_lock_acquire_release():
 @pytest.mark.etcd
 @pytest.mark.asyncio
 async def test_client_locks():
-    client = AsyncEtcd3Client(host=ETCD_HOST)
+    client = AsyncEtcd3Client(host=ETCD_HOST, api_path=API_PATH)
     lock = await client.lock(id="xyz-%s" % perf_counter(), ttl=60)
     assert lock is not None
 
@@ -365,7 +367,7 @@ async def test_client_locks():
 @pytest.mark.etcd
 @pytest.mark.asyncio
 async def test_create_success():
-    client = AsyncEtcd3Client(host=ETCD_HOST)
+    client = AsyncEtcd3Client(host=ETCD_HOST, api_path=API_PATH)
     key = "/foo/unique" + str(uuid.uuid4())
     # Verify that key is empty
     assert [] == await client.get(key)
@@ -379,7 +381,7 @@ async def test_create_success():
 @pytest.mark.etcd
 @pytest.mark.asyncio
 async def test_create_fail():
-    client = AsyncEtcd3Client(host=ETCD_HOST)
+    client = AsyncEtcd3Client(host=ETCD_HOST, api_path=API_PATH)
     key = "/foo/" + str(uuid.uuid4())
     # Assign value to the key
     await client.put(key, "bar")
@@ -394,7 +396,7 @@ async def test_create_fail():
 @pytest.mark.etcd
 @pytest.mark.asyncio
 async def test_create_with_lease_success():
-    client = AsyncEtcd3Client(host=ETCD_HOST)
+    client = AsyncEtcd3Client(host=ETCD_HOST, api_path=API_PATH)
     key = "/foo/unique" + str(uuid.uuid4())
     # Verify that key is empty
     assert [] == await client.get(key)
@@ -419,7 +421,7 @@ async def _post_key(client, key_name, provide_value=True):
 @pytest.mark.etcd
 @pytest.mark.asyncio
 async def test_client_keys_with_metadata_and_value():
-    client = AsyncEtcd3Client(host=ETCD_HOST)
+    client = AsyncEtcd3Client(host=ETCD_HOST, api_path=API_PATH)
     test_key_value = b"some_key"
     await _post_key(client, test_key_value)
     result = await client.get(test_key_value, metadata=True)
@@ -431,7 +433,7 @@ async def test_client_keys_with_metadata_and_value():
 @pytest.mark.etcd
 @pytest.mark.asyncio
 async def test_client_keys_with_metadata_and_no_value():
-    client = AsyncEtcd3Client(host=ETCD_HOST)
+    client = AsyncEtcd3Client(host=ETCD_HOST, api_path=API_PATH)
     value_is_not_set_default = b""
     test_key = b"some_key"
     await _post_key(client, test_key, provide_value=False)

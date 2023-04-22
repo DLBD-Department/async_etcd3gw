@@ -6,20 +6,26 @@ on:
 
 jobs:
   tests:
-    name: Run tests (Python ${{matrix.python}}
+    name: Run tests (Python ${{matrix.python}}, etcd ${{matrix.etcd}})
 
     strategy:
       matrix:
-        python:
-        - "3.9"
-        - "3.10"
-        - "3.11"
+        python: [ "3.9", "3.10", "3.11" ]
+        etcd: [ "v3.5.8" ]
 
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout
       uses: actions/checkout@v3
+
+    - name: Set up etcd
+      run: |
+        curl -L https://github.com/etcd-io/etcd/releases/download/${{ matrix.etcd }}/etcd-${{ matrix.etcd }}-linux-amd64.tar.gz -o /tmp/etcd-${{ matrix.etcd }}-linux-amd64.tar.gz
+        mkdir -p /tmp/etcd /tmp/etcd_data
+        tar xzvf /tmp/etcd-${{ matrix.etcd }}-linux-amd64.tar.gz -C /tmp/etcd --strip-components=1
+        rm -f /tmp/etcd-${{ matrix.etcd }}-linux-amd64.tar.gz
+        /tmp/etcd/etcd --name etcd --data-dir /tmp/etcd_data --advertise-client-urls http://127.0.0.1:2379 --listen-client-urls http://127.0.0.1:2379 --initial-advertise-peer-urls http://127.0.0.1:2380 --listen-peer-urls http://0.0.0.0:2380 --initial-cluster-state new &
 
     - name: Set up Python
       uses: actions/setup-python@v4
@@ -43,10 +49,10 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install --upgrade setuptools wheel
         python -m pip install -r requirements.txt
-        python -m pip install pytest
+        python -m pip install pytest pytest-asyncio
 
     - name: Run tests
-      run: pytest -m 'not etcd'
+      run: pytest
 
   all_done:
     name: Tests done
