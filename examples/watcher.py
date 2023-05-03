@@ -14,7 +14,7 @@
 import asyncio
 import os
 
-from async_etcd3gw.async_client import AsyncEtcd3Client
+from async_etcd3gw.async_client import DEFAULT_API_PATH, AsyncEtcd3Client
 
 
 async def generator(async_client, n):
@@ -26,7 +26,8 @@ async def generator(async_client, n):
 
 async def main():
     etcd_host = os.environ.get("ETCD_HOST", "localhost")
-    async_client = AsyncEtcd3Client(host=etcd_host)
+    api_path = os.environ.get("API_PATH", DEFAULT_API_PATH)
+    async_client = AsyncEtcd3Client(host=etcd_host, api_path=api_path)
     n = 10 * 10
 
     events, cancel = await async_client.watch("foo")
