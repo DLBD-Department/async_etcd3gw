@@ -68,7 +68,24 @@ class AsyncWatcher(object):
                 await self.callback(event)
 
     async def watch(self):
-        async with aiohttp.ClientSession(**self.async_client.client_session_kwargs) as session:
-            async with session.post(self.async_client.get_url("/watch"), json=self.create_request) as resp:
-                async for data in resp.content.iter_any():
-                    await self.process_chunk(data)
+        try:
+            # Set timeout
+            kwargs = dict(self.async_client.client_session_kwargs)
+            timeout = aiohttp.ClientTimeout(total=None, sock_read=None)
+            kwargs["timeout"] = timeout
+            async with aiohttp.ClientSession(**kwargs) as session:
+                async with session.post(self.async_client.get_url("/watch"), json=self.create_request) as resp:
+                    await self.read_and_process_chunk(resp.content)
+        except Exception:
+            await self.callback(None)
+
+    async def read_and_process_chunk(self, content):
+        while True:
+            if content._exception is not None:
+                raise content._exception
+
+            if not content._buffer and not content._eof:
+                await content._wait("readany")
+
+            data = content._read_nowait(-1)
+            await self.process_chunk(data)
