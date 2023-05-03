@@ -3,7 +3,7 @@ name: "async_etcd3gw"
 services:
 
   etcd:
-    image: "quay.io/coreos/etcd"
+    image: "quay.io/coreos/etcd:v3.5.8"
     hostname: "etcd"
     network_mode: "host"
     ports:
@@ -35,8 +35,6 @@ services:
       - "8081:8081"
     expose:
       - "8081"
-    volumes:
-      - etcd-data:/etcd_data
     environment:
       - ETCD=127.0.0.1:2379
       - EDITABLE=1
