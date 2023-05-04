@@ -17,7 +17,7 @@ from time import perf_counter
 
 import pytest
 
-from async_etcd3gw import exceptions, utils, AsyncEtcd3Client
+from async_etcd3gw import AsyncEtcd3Client, exceptions, utils
 from async_etcd3gw.async_client import DEFAULT_API_PATH
 
 ETCD_HOST = os.environ.get("ETCD_HOST", "localhost")
@@ -33,6 +33,7 @@ async def test_client_status():
     assert "version" in response
     assert "header" in response
     assert "cluster_id" in response["header"]
+    await client.close()
 
 
 @pytest.mark.etcd
@@ -43,6 +44,7 @@ async def test_client_members():
     assert len(response) > 0
     assert "clientURLs" in response[0]
     assert "peerURLs" in response[0]
+    await client.close()
 
 
 @pytest.mark.etcd
@@ -62,6 +64,7 @@ async def test_client_with_keys_and_values():
 
     assert not await client.delete("foo0")
     assert len(await client.get_all()) > 0
+    await client.close()
 
 
 @pytest.mark.etcd
@@ -80,6 +83,7 @@ async def test_get_and_delete_prefix():
     assert await client.delete_prefix("/doot1/range")
     values = list(await client.get_prefix("/doot1/range"))
     assert len(values) == 0
+    await client.close()
 
 
 @pytest.mark.etcd
@@ -107,6 +111,7 @@ async def test_get_prefix_sort_order():
         reverse_keys += remove_prefix(meta["key"], "/doot2/")
 
     assert reverse_keys == "".join(reversed(initial_keys)).encode("latin-1")
+    await client.close()
 
 
 @pytest.mark.etcd
@@ -135,6 +140,7 @@ async def test_get_prefix_sort_order_explicit_sort_target_key():
         reverse_keys += remove_prefix(meta["key"], "/doot2/")
 
     assert reverse_keys == "".join(reversed(initial_keys_ordered)).encode("latin-1")
+    await client.close()
 
 
 @pytest.mark.etcd
@@ -162,6 +168,7 @@ async def test_get_prefix_sort_order_explicit_sort_target_rev():
         reverse_keys += remove_prefix(meta["key"], "/expsortmod/")
 
     assert reverse_keys == "".join(reversed(initial_keys)).encode("latin-1")
+    await client.close()
 
 
 @pytest.mark.etcd
@@ -174,6 +181,7 @@ async def test_replace_success():
     v = await client.get(key)
     assert [b"doot"] == v
     assert status
+    await client.close()
 
 
 @pytest.mark.etcd
@@ -186,6 +194,7 @@ async def test_replace_fail():
     v = await client.get(key)
     assert [b"boot"] == v
     assert not status
+    await client.close()
 
 
 @pytest.mark.etcd
@@ -205,6 +214,7 @@ async def test_client_lease():
     assert 0 <= ttl <= 60
 
     assert await lease.revoke()
+    await client.close()
 
 
 @pytest.mark.etcd
@@ -226,6 +236,7 @@ async def test_client_lease_with_keys():
     assert [b"bar13"] == await client.get("foo13")
 
     assert await lease.revoke()
+    await client.close()
 
 
 @pytest.mark.etcd
@@ -268,6 +279,7 @@ async def test_watch_key():
             await cancel()
 
     await t
+    await client.close()
 
 
 @pytest.mark.etcd
@@ -330,6 +342,7 @@ async def test_sequential_watch_prefix_once():
         await client.watch_prefix_once("/doot/", 1)
     except exceptions.WatchTimedOut:
         pass
+    await client.close()
 
 
 @pytest.mark.etcd
@@ -343,6 +356,7 @@ async def test_client_lock_acquire_release():
 
     async with await client.lock(ttl=60) as lock:
         assert not await lock.acquire()
+    await client.close()
 
 
 @pytest.mark.etcd
@@ -362,6 +376,7 @@ async def test_client_locks():
     assert await lock.release()
     assert not await lock.release()
     assert not await lock.is_acquired()
+    await client.close()
 
 
 @pytest.mark.etcd
@@ -376,6 +391,7 @@ async def test_create_success():
     # Verify that key is 'bar'
     assert [b"bar"] == await client.get(key)
     assert status
+    await client.close()
 
 
 @pytest.mark.etcd
@@ -391,6 +407,7 @@ async def test_create_fail():
     # Verify that key is still 'bar'
     assert [b"bar"] == await client.get(key)
     assert not status
+    await client.close()
 
 
 @pytest.mark.etcd
@@ -409,6 +426,7 @@ async def test_create_with_lease_success():
     keys = await lease.keys()
     assert 1 == len(keys)
     assert key.encode("latin-1") in keys
+    await client.close()
 
 
 async def _post_key(client, key_name, provide_value=True):
@@ -428,6 +446,7 @@ async def test_client_keys_with_metadata_and_value():
     assert len(result) > 0
     value, metadata = result[0]
     assert value == test_key_value
+    await client.close()
 
 
 @pytest.mark.etcd
@@ -441,3 +460,4 @@ async def test_client_keys_with_metadata_and_no_value():
     assert len(result) > 0
     value, metadata = result[0]
     assert value == value_is_not_set_default
+    await client.close()

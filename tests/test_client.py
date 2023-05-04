@@ -19,21 +19,25 @@ from async_etcd3gw import AsyncEtcd3Client
 async def test_client_default():
     client = AsyncEtcd3Client()
     assert "http://localhost:2379%slease/grant" % client.api_path == client.get_url("/lease/grant")
+    await client.close()
 
 
 @pytest.mark.asyncio
 async def test_client_ipv4():
     client = AsyncEtcd3Client(host="127.0.0.1")
     assert "http://127.0.0.1:2379%slease/grant" % client.api_path == client.get_url("/lease/grant")
+    await client.close()
 
 
 @pytest.mark.asyncio
 async def test_client_ipv6():
     client = AsyncEtcd3Client(host="::1")
     assert "http://[::1]:2379%slease/grant" % client.api_path == client.get_url("/lease/grant")
+    await client.close()
 
 
 @pytest.mark.asyncio
 async def test_client_api_path():
     client = AsyncEtcd3Client(host="127.0.0.1", api_path="/v3/")
     assert "http://127.0.0.1:2379/v3/lease/grant" == client.get_url("/lease/grant")
+    await client.close()

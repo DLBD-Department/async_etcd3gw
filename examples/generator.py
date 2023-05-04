@@ -17,15 +17,20 @@ import os
 from async_etcd3gw.async_client import DEFAULT_API_PATH, AsyncEtcd3Client
 
 
+async def generator(async_client, n):
+    for i in range(0, n):
+        print(i)
+        await async_client.put("/foo", i)
+        await asyncio.sleep(0.1)
+
+
 async def main():
     etcd_host = os.environ.get("ETCD_HOST", "localhost")
     api_path = os.environ.get("API_PATH", DEFAULT_API_PATH)
     async_client = AsyncEtcd3Client(host=etcd_host, api_path=api_path)
-
     try:
-        events, cancel = await async_client.watch_prefix("/")
-        async for event in events:
-            print(f">>>> event: {event}")
+        n = 10 * 10
+        await generator(async_client, n)
     finally:
         await async_client.close()
 

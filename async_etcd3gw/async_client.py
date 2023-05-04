@@ -100,6 +100,8 @@ class AsyncEtcd3Client(object):
         if self.connector is not None:
             self.client_session_kwargs["connector"] = self.connector
 
+        self.session = aiohttp.ClientSession(**self.client_session_kwargs)
+
     def get_url(self, path):
         """Construct a full url to the v3 API given a specific path
 
@@ -141,12 +143,11 @@ class AsyncEtcd3Client(object):
             ConnectionFailedError: If the connection fails.
         """
         try:
-            async with aiohttp.ClientSession(**self.client_session_kwargs) as session:
-                async with session.post(*args, **kwargs) as resp:
-                    ex = get_exception(resp.status, resp.text, resp.reason)
-                    if ex is not None:
-                        raise ex
-                    return await resp.json()
+            async with self.session.post(*args, **kwargs) as resp:
+                ex = get_exception(resp.status, resp.text, resp.reason)
+                if ex is not None:
+                    raise ex
+                return await resp.json()
         except asyncio.TimeoutError as ex:
             raise ConnectionTimeoutError(str(ex))
         except aiohttp.ClientConnectionError as ex:
@@ -558,6 +559,10 @@ class AsyncEtcd3Client(object):
         """Watches a range of keys with a prefix, similar to watch_once"""
         kwargs["range_end"] = _increment_last_byte(key_prefix)
         return await self.watch_once(key_prefix, timeout=timeout, **kwargs)
+
+    async def close(self):
+        """Close the underlying connector and release all acquired resources."""
+        return await self.session.close()
 
 
 def async_client(

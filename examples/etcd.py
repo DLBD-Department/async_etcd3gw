@@ -69,6 +69,7 @@ async def main():
     print("release : %r" % result)
     result = await lock.is_acquired()
     print("is_acquired : %r" % result)
+    await async_client.close()
 
 
 if __name__ == "__main__":

@@ -24,26 +24,29 @@ import asyncio
 from async_etcd3gw import AsyncEtcd3Client
 
 async def main():
-    client = AsyncEtcd3Client(host='etcd', port=2379)
+    client = AsyncEtcd3Client(host="etcd", port=2379)
 
     # Put key
-    await client.put(key='foo', value='bar')
+    await client.put(key="foo", value="bar")
 
     # Get key
-    print("get key foo", await client.get(key='foo'))
+    print("get key foo", await client.get(key="foo"))
 
     # Get all keys
     print("get all keys", await client.get_all())
 
     # Create lease and use it
     lease = await client.lease(ttl=100)
-    await client.put(key='foo', value='bar', lease=lease)
+    await client.put(key="foo", value="bar", lease=lease)
 
     # Get lease keys
     print("get lease keys", await lease.keys())
 
     # Refresh lease
     await lease.refresh()
+
+    # Release all acquired resources
+    await client.close()
 
 if __name__ == "__main__":
     asyncio.run(main())

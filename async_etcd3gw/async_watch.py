@@ -90,17 +90,15 @@ class AsyncWatcher(object):
 
     async def watch(self):
         try:
-            # Set timeout
-            kwargs = dict(self.async_client.client_session_kwargs)
             timeout = aiohttp.ClientTimeout(total=None, sock_read=None)
-            kwargs["timeout"] = timeout
-            async with aiohttp.ClientSession(**kwargs) as session:
-                async with session.post(self.async_client.get_url("/watch"), json=self.create_request) as resp:
-                    ex = get_exception(resp.status, resp.text, resp.reason)
-                    if ex:
-                        raise ex
-                    self.event.set()
-                    await self.read_and_process_chunk(resp.content)
+            async with self.async_client.session.post(
+                self.async_client.get_url("/watch"), json=self.create_request, timeout=timeout
+            ) as resp:
+                ex = get_exception(resp.status, resp.text, resp.reason)
+                if ex:
+                    raise ex
+                self.event.set()
+                await self.read_and_process_chunk(resp.content)
         except Exception as ex:
             self.exception = ex
             self.event.set()
