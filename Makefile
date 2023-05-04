@@ -8,7 +8,10 @@ help:
 	@echo - make test ------- Run test
 	@echo - make venv ------- Create virtual environment
 
-black:
+isort:
+	isort async_etcd3gw tests examples setup.py
+
+black: isort
 	black async_etcd3gw tests examples setup.py
 
 clean:

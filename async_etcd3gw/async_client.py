@@ -24,7 +24,12 @@ import aiohttp
 from .async_lease import AsyncLease
 from .async_lock import AsyncLock
 from .async_watch import AsyncWatcher
-from .exceptions import ConnectionFailedError, ConnectionTimeoutError, WatchTimedOut, get_exception
+from .exceptions import (
+    ConnectionFailedError,
+    ConnectionTimeoutError,
+    WatchTimedOut,
+    get_exception,
+)
 from .utils import DEFAULT_TIMEOUT, _decode, _encode, _increment_last_byte
 
 __all__ = [

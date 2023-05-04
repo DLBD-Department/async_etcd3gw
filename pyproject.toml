@@ -5,6 +5,9 @@ build-backend = "setuptools.build_meta"
 [tool.black]
 line-length = 132
 
+[tool.isort]
+profile = "black"
+
 [tool.coverage.run]
 source = ["async_etcd3gw"]
 
