@@ -14,6 +14,7 @@
 #    https://opendev.org/openstack/etcd3gw/src/tag/2.1.0/etcd3gw/exceptions.py
 
 __all__ = [
+    "get_exception",
     "AsyncEtcd3Exception",
     "WatchTimedOut",
     "InternalServerError",
@@ -57,3 +58,11 @@ _EXCEPTIONS_BY_CODE = {
     504: ConnectionTimeoutError,
     412: PreconditionFailedError,
 }
+
+
+def get_exception(status, text, reason):
+    if status in _EXCEPTIONS_BY_CODE:
+        return _EXCEPTIONS_BY_CODE[status](text, reason)
+    if status != 200:
+        return AsyncEtcd3Exception(text, reason)
+    return None

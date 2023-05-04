@@ -24,7 +24,7 @@ import aiohttp
 from .async_lease import AsyncLease
 from .async_lock import AsyncLock
 from .async_watch import AsyncWatcher
-from .exceptions import _EXCEPTIONS_BY_CODE, AsyncEtcd3Exception, ConnectionFailedError, ConnectionTimeoutError, WatchTimedOut
+from .exceptions import ConnectionFailedError, ConnectionTimeoutError, WatchTimedOut, get_exception
 from .utils import DEFAULT_TIMEOUT, _decode, _encode, _increment_last_byte
 
 __all__ = [
@@ -143,10 +143,9 @@ class AsyncEtcd3Client(object):
         try:
             async with aiohttp.ClientSession(**self.client_session_kwargs) as session:
                 async with session.post(*args, **kwargs) as resp:
-                    if resp.status in _EXCEPTIONS_BY_CODE:
-                        raise _EXCEPTIONS_BY_CODE[resp.status](resp.text, resp.reason)
-                    if resp.status != 200:
-                        raise AsyncEtcd3Exception(resp.text, resp.reason)
+                    ex = get_exception(resp.status, resp.text, resp.reason)
+                    if ex is not None:
+                        raise ex
                     return await resp.json()
         except asyncio.TimeoutError as ex:
             raise ConnectionTimeoutError(str(ex))
@@ -512,6 +511,9 @@ class AsyncEtcd3Client(object):
         async def iterator():
             while not canceled.is_set():
                 event = await event_queue.get()
+                if isinstance(event, Exception):
+                    canceled.set()
+                    raise event
                 if event is None:
                     canceled.set()
                 if not canceled.is_set():
