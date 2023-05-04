@@ -564,6 +564,14 @@ class AsyncEtcd3Client(object):
         """Close the underlying connector and release all acquired resources."""
         return await self.session.close()
 
+    async def __aenter__(self):
+        """Use the AsyncEtcd3Client as a contextmanager"""
+        return self
+
+    async def __aexit__(self, exception_type, exception_value, traceback):
+        """Use the AsyncEtcd3Client as a contextmanager"""
+        await self.close()
+
 
 def async_client(
     host="localhost",

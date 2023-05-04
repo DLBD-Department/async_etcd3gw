@@ -27,13 +27,12 @@ API_PATH = os.environ.get("API_PATH", DEFAULT_API_PATH)
 @pytest.mark.etcd
 @pytest.mark.asyncio
 async def test_client_status():
-    client = AsyncEtcd3Client(host=ETCD_HOST, api_path=API_PATH)
-    response = await client.status()
-    assert response is not None
-    assert "version" in response
-    assert "header" in response
-    assert "cluster_id" in response["header"]
-    await client.close()
+    async with AsyncEtcd3Client(host=ETCD_HOST, api_path=API_PATH) as client:
+        response = await client.status()
+        assert response is not None
+        assert "version" in response
+        assert "header" in response
+        assert "cluster_id" in response["header"]
 
 
 @pytest.mark.etcd
