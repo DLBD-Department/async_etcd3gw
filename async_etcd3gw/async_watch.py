@@ -62,6 +62,9 @@ class AsyncWatcher(object):
         try:
             payload = json.loads(decoded_line)
         except json.JSONDecodeError as ex:
+            # if the chuck is empty, skip it
+            if len(decoded_line.strip("\n")) == 0:
+                return
             raise ex
         if "error" in payload:
             raise get_exception(
