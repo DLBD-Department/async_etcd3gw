@@ -61,7 +61,7 @@ class AsyncWatcher(object):
         decoded_line = line.decode("utf-8")
         try:
             payload = json.loads(decoded_line)
-        except Exception as ex:
+        except json.JSONDecodeError as ex:
             raise ex
         if "error" in payload:
             raise get_exception(
@@ -85,7 +85,11 @@ class AsyncWatcher(object):
             if not content._buffer and not content._eof:
                 await content._wait("readany")
 
-            data = content._read_nowait(-1)
+            (data, end_of_http_chunk) = await content.readchunk()
+            while not end_of_http_chunk:
+                (more_data, end_of_http_chunk) = await content.readchunk()
+                data += more_data
+
             await self.process_chunk(data)
 
     async def watch(self):
