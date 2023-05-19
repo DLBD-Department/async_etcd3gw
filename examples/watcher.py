@@ -19,8 +19,9 @@ from async_etcd3gw.async_client import DEFAULT_API_PATH, AsyncEtcd3Client
 
 async def main():
     etcd_host = os.environ.get("ETCD_HOST", "localhost")
+    etcd_port = os.environ.get("ETCD_PORT", "2379")
     api_path = os.environ.get("API_PATH", DEFAULT_API_PATH)
-    async with AsyncEtcd3Client(host=etcd_host, api_path=api_path) as async_client:
+    async with AsyncEtcd3Client(host=etcd_host, port=etcd_port, api_path=api_path) as async_client:
         events, cancel = await async_client.watch_prefix("/")
         async for event in events:
             print(f">>>> event: {event}")

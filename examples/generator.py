@@ -26,8 +26,9 @@ async def generator(async_client, n):
 
 async def main():
     etcd_host = os.environ.get("ETCD_HOST", "localhost")
+    etcd_port = os.environ.get("ETCD_PORT", "2379")
     api_path = os.environ.get("API_PATH", DEFAULT_API_PATH)
-    async with AsyncEtcd3Client(host=etcd_host, api_path=api_path) as async_client:
+    async with AsyncEtcd3Client(host=etcd_host, port=etcd_port, api_path=api_path) as async_client:
         n = 10 * 10
         await generator(async_client, n)
 
